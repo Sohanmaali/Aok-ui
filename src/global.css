@@ -1,0 +1,8 @@
+.keep-scrollbar {
+    overflow-y: auto !important;
+  }
+  
+  body.keep-scrollbar {
+    overflow: auto !important;
+  }
+  
