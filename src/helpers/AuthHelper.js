@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import BasicProvider from "../../src/constants/BasicProvider.js";
-import { jwtDecode } from "jwt-decode"; // For named export
+import { jwtDecode } from "jwt-decode";
 
 class AuthHelpers {
   static async login(formdata, navigate, dispatch) {
@@ -10,36 +10,45 @@ class AuthHelpers {
         dispatch
       ).postRequest(formdata);
 
-      console.log("process.env.REACT_APP_DOMAIN", process.env.REACT_APP_DOMAIN);
+      if (response.data.access_token) {
+        Cookies.set(
+          `${process.env.REACT_APP_COOKIE_PREFIX}_auth`,
+          response.data.access_token,
+          {
+            expires: 30,
+            path: "/",
+            domain: process.env.REACT_APP_DOMAIN,
+            sameSite: "strict",
+          }
+        );
+        dispatch({ type: "set", isLogin: true });
 
-      Cookies.set(
-        `${process.env.REACT_APP_COOKIE_PREFIX}_auth`,
-        response?.data?.access_token,
-        {
-          expires: 3,
-          path: "/",
-          sameSite: "strict",
-          domain: process.env.REACT_APP_DOMAIN || "localhost",
-        }
-      );
-
-      dispatch({ type: "set", isLogin: true });
-
-      navigate("/dashboard");
+        // navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
+      }
     } catch (error) {
       console.error(error);
     }
   }
 
-  static async logout() {
+  static async isAuthenticated() {
+    // Check if the token exists in cookies
+    const token = Cookies.get(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`);
+    return !!token;
+  }
+
+  static async logout(dispatch) {
+    console.log("logout");
+
     try {
       Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-        path: "/",
-        sameSite: "strict",
+        path: "",
+        domain: process.env.REACT_APP_DOMAIN,
       });
     } catch (error) {
       console.error(error);
     }
+    dispatch({ type: "set", isLogin: false });
   }
 
   static getTokenData() {
@@ -59,6 +68,9 @@ class AuthHelpers {
 
     return null;
   }
-}
 
+  static async getToken() {
+    return Cookies.get(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`);
+  }
+}
 export default AuthHelpers;

@@ -5,115 +5,168 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
-  CFormCheck,
+  // CFormCheck,
   CButton,
   CCard,
   CCardBody,
   CCardHeader,
-  CLink,
-} from '@coreui/react'
-import { useState } from 'react'
-import DatePicker from 'react-datepicker'
-import { submitHalper } from '../../../helpers/submitHalper'
+  // CCardHeader,
+  // CLink,
+} from "@coreui/react";
+import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+// import { submitHalper } from '../../../helpers/submitHalper'
 // import submitHalper from '.'
 
-import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
-import BasicProvider from '../../../helpers/basicProvider'
+// import { useDispatch } from 'react-redux'
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+// import { AppBreadcrumb } from '../../../components'
+import SubHeader from "../../../components/custome/SubHeader";
+import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
+import BasicProvider from "../../../constants/BasicProvider";
+import { useDispatch } from "react-redux";
+import "react-datepicker/dist/react-datepicker.css";
 
-export default function CreateBorrow(params) {
-  const [startDate, setStartDate] = useState(new Date())
+var subHeaderItems = [
+  {
+    name: "All lend",
+    link: "/lend/all",
+    icon: cilSpreadsheet,
+  },
+  {
+    name: "Create lend",
+    link: "/lend/create",
+    icon: cilPencil,
+  },
+  {
+    name: "Trash lend",
+    link: "/lend/trash",
+    icon: cilTrash,
+  },
+];
+
+export default function CreateLend(params) {
+  // const [startDate, setStartDate] = useState(new Date())
+  // const { id } = useParams()
+
+  const navigate = useNavigate();
 
   const [initialvalues, setInitialvalues] = useState({
-    first_name: '',
-    last_name: '',
-    mobile: '',
-    work: '',
-    address: '',
-    price: '',
-    // work_date: new Date(),
-    image: '',
-  })
+    first_name: "",
+    last_name: "",
+    mobile: "",
+    work_name: "",
+    address: "",
+    price: "",
+    work_date: "",
+    image: "",
+  });
 
-  // const dispatch = useDispatch()
+  const fetchData = async () => {
+    // const response = await new BasicProvider(`lend/${id}`).getRequest()
+    // if (response.message == 'success') setInitialvalues(response?.data?.data)
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const dispatch = useDispatch();
   const ValidationRules = {
     first_name: { required: true },
     last_name: { required: true },
     mobile: { required: true },
-    work: { required: true },
+    work_name: { required: true },
     address: { required: true },
     price: { required: true },
     work_date: { required: true },
     // image: { required: true },
-  }
+  };
 
-  const [errors, setErrors] = useState({})
-
-  const dispatch = (action) => {
-    switch (action.type) {
-      case 'SET_ERRORS':
-        setErrors(action.payload)
-        break
-      // Add other actions as needed
-      default:
-        break
-    }
-  }
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target
+    const { name, value, type, files } = e.target;
 
-    if (type === 'file') {
+    if (type === "file") {
       // Handle file input
       setInitialvalues((prevValues) => ({
         ...prevValues,
         [name]: files[0], // Store the file object
-      }))
+      }));
     } else {
       // Handle text input
       setInitialvalues((prevValues) => ({
         ...prevValues,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
+
+  const handleDateChange = (date) => {
+    setInitialvalues((prevValues) => ({
+      ...prevValues,
+      work_date: date, // Store the date object
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (submitHalper(initialvalues, ValidationRules, dispatch)) {
-      // const responce = await new BasicProvider(``).postRequest(initialvalues)
-      setErrors({})
-    } else {
-      // Display error messages using toast notifications
-      Object.values(errors).forEach((error) => toast.error(error))
+    try {
+      const response = await new BasicProvider(`lend`, dispatch).postRequest(
+        initialvalues
+      );
+      console.log("response", response);
+
+      navigate(`/lend/create/${response.data.id}/info`); // Adjust the URL as needed
+      toast.success("Data created");
+
+      setErrors({});
+
+      Object.values(errors).forEach((error) => toast.error(error));
+    } catch (error) {
+      console.log("error", error);
     }
-  }
+  };
 
   return (
     <>
-      <CContainer>
+      <SubHeader
+        subHeaderItems={subHeaderItems}
+        // handleFilter={(search) => handleFilter(search)}
+        // setSearchCurrentPage={setSearchCurrentPage}
+        // onReset={() => handleFilterReset()}
+        // searchInput={search}
+        // rowPerPage={rowPerPage}
+        // defaultPage={defaultPage}
+        moduleName="customers"
+        deletionType="trash"
+      />
+      <CContainer className="">
         <CForm onSubmit={handleSubmit}>
           <CRow className="justify-content-between">
             <CCol md={8} lg={6}>
               <CCard className="shadow">
-                {/* <CCardHeader>
-                <h1 className="h3 text-center">Create an account</h1>
-              </CCardHeader> */}
+                <CCardHeader className="">
+                  <h5>Personal Information</h5>
+                </CCardHeader>
                 <CCardBody>
                   <div className="mb-3">
-                    <CFormLabel htmlFor="first_name">Enter First Name</CFormLabel>
+                    <CFormLabel htmlFor="first_name">First Name *</CFormLabel>
                     <CFormInput
-                      type="first_name"
+                      type="text"
                       id="first_name"
                       name="first_name"
+                      className=" input-outline"
                       placeholder="First name"
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="mb-3">
-                    <CFormLabel htmlFor="last_name">Enter Last Name</CFormLabel>
+                    <CFormLabel htmlFor="last_name">Last Name</CFormLabel>
                     <CFormInput
                       type="last_name"
                       name="last_name"
@@ -134,11 +187,11 @@ export default function CreateBorrow(params) {
                     />
                   </div>
                   <div className="mb-3">
-                    <CFormLabel htmlFor="work">Work</CFormLabel>
+                    <CFormLabel htmlFor="work_name">Work Name *</CFormLabel>
                     <CFormInput
                       type="text"
-                      id="work"
-                      name="work"
+                      id="work_name"
+                      name="work_name"
                       placeholder="Enter Work"
                       onChange={handleChange}
                     />
@@ -155,7 +208,7 @@ export default function CreateBorrow(params) {
                     />
                   </div>
                   <div className="mb-3">
-                    <CFormLabel htmlFor="price">Price</CFormLabel>
+                    <CFormLabel htmlFor="price">Price *</CFormLabel>
                     <CFormInput
                       type="text"
                       id="price"
@@ -165,14 +218,22 @@ export default function CreateBorrow(params) {
                     />
                   </div>
                   <div className="mb-3">
-                    <CFormLabel htmlFor="work_date">Enter Work Date</CFormLabel>
-                    <DatePicker
-                      selected={initialvalues?.work_date}
-                      //   onChange={(date) => setStartDate(date)}
-                      name="work_date"
-                      dateFormat="dd/MM/yyyy"
-                      onChange={handleChange}
-                    />
+                    <div>
+                      <CFormLabel
+                        htmlFor="work_date"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Work Date *
+                      </CFormLabel>
+                    </div>
+                    <div className="w-full">
+                      <DatePicker
+                        // selected={}
+                        // onChange={(date) => setSelectedDate(date)}
+                        placeholderText="Select a date"
+                        className="form-control w-full my-date-picker"
+                      />
+                    </div>
                   </div>
                 </CCardBody>
               </CCard>
@@ -180,6 +241,9 @@ export default function CreateBorrow(params) {
 
             <CCol md={4} lg={6}>
               <CCard className="shadow">
+                <CCardHeader className="">
+                  <h5>Profile</h5>
+                </CCardHeader>
                 <CCardBody>
                   <div className="mb-3">
                     <CFormLabel htmlFor="image">Select Image</CFormLabel>
@@ -207,10 +271,18 @@ export default function CreateBorrow(params) {
                   </div> */}
 
                   <div className="d-flex justify-content-around">
-                    <CButton type="submit" color="success" className="flex-grow-1 mx-2 text-white">
+                    <CButton
+                      type="submit"
+                      color="success"
+                      className="flex-grow-1 mx-2 text-white"
+                    >
                       Save
                     </CButton>
-                    <CButton type="reset" color="danger" className="flex-grow-1 mx-2 text-white">
+                    <CButton
+                      type="reset"
+                      color="danger"
+                      className="flex-grow-1 mx-2 text-white"
+                    >
                       Cancel
                     </CButton>
                   </div>
@@ -221,5 +293,5 @@ export default function CreateBorrow(params) {
         </CForm>
       </CContainer>
     </>
-  )
+  );
 }

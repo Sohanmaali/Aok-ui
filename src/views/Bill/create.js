@@ -5,180 +5,195 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
-  CFormCheck,
   CButton,
   CCard,
   CCardBody,
   CCardHeader,
-  CLink,
-} from '@coreui/react'
-import { useState } from 'react'
-import DatePicker from 'react-datepicker'
+} from "@coreui/react";
+import { useState } from "react";
+import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
+import { submitHalper } from "../../helpers/submitHalper";
+import SubHeader from "../../components/custome/SubHeader";
+import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import BasicProvider from "../../constants/BasicProvider";
 
-import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
-// import BasicProvider from '../../../helpers/basicProvider'
-import { submitHalper } from '../../helpers/submitHalper'
-import { useParams } from 'react-router-dom'
-import SubHeader from '../../components/custome/SubHeader'
-import DeleteConfirmation from '../../helpers/DeleteModal'
+var subHeaderItems = [
+  {
+    name: "All Bill",
+    link: "/bill/all",
+    icon: cilSpreadsheet,
+  },
+  // {
+  //   name: "Create Bill",
+  //   link: "/bill/create",
+  //   icon: cilPencil,
+  // },
+  {
+    name: "Trash Bill",
+    link: "/bill/trash",
+    icon: cilTrash,
+  },
+];
 
-export default function CreateBill(params) {
-  const [startDate, setStartDate] = useState(new Date())
+const formFields = [
+  { id: "first_name", label: "Enter First Name", placeholder: "First name" },
+  { id: "last_name", label: "Enter Last Name", placeholder: "Last name" },
+  { id: "mobile", label: "Mobile Number", placeholder: "Enter mobile number" },
+  { id: "address", label: "Address", placeholder: "Enter address" },
+];
 
-  //   const params = useParams()
-  let id
+export default function CreateBill() {
+  const [startDate, setStartDate] = useState(new Date());
 
+  const { id } = useParams();
+
+  const dispatch = useDispatch();
   const [initialvalues, setInitialvalues] = useState({
-    first_name: '',
-    last_name: '',
-    mobile: '',
-    work: '',
-    address: '',
-    price: '',
-    // work_date: new Date(),
-    image: '',
-  })
+    first_name: "",
+    last_name: "",
+    mobile: "",
+    address: "",
+    works: [{ work_name: "", price: "" }], // Array of work objects
+    image: "",
+    total: 0, // Initialize total as a number
+  });
+  const [errors, setErrors] = useState({});
 
-  // const dispatch = useDispatch()
+  const handleChange = (e, index) => {
+    const { name, value, type, files } = e.target;
+
+    if (name === "work_name" || name === "price") {
+      const updatedWorks = [...initialvalues.works];
+      updatedWorks[index][name] = value;
+      setInitialvalues((prevValues) => {
+        const newTotal = updatedWorks.reduce(
+          (sum, work) => sum + (parseFloat(work.price) || 0),
+          0
+        );
+        return {
+          ...prevValues,
+          works: updatedWorks,
+          total: newTotal, // Update total
+        };
+      });
+    } else if (type === "file") {
+      setInitialvalues((prevValues) => ({
+        ...prevValues,
+        [name]: files[0],
+      }));
+    } else {
+      setInitialvalues((prevValues) => ({
+        ...prevValues,
+        [name]: value,
+      }));
+    }
+  };
+
+  const addWork = () => {
+    setInitialvalues((prevValues) => {
+      const updatedWorks = [...prevValues.works, { work_name: "", price: "" }];
+      const newTotal = updatedWorks.reduce(
+        (sum, work) => sum + (parseFloat(work.price) || 0),
+        0
+      );
+      return {
+        ...prevValues,
+        works: updatedWorks,
+        total: newTotal, // Update total
+      };
+    });
+  };
+
+  const removeWork = (index) => {
+    setInitialvalues((prevValues) => {
+      const updatedWorks = prevValues.works.filter((_, i) => i !== index);
+      const newTotal = updatedWorks.reduce(
+        (sum, work) => sum + (parseFloat(work.price) || 0),
+        0
+      );
+      return {
+        ...prevValues,
+        works: updatedWorks,
+        total: newTotal, // Update total
+      };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = submitHalper(initialvalues, ValidationRules, dispatch);
+
+      if (data) {
+        const response = await new BasicProvider(`bill`, dispatch).postRequest(
+          initialvalues
+        );
+        setErrors({});
+      } else {
+        // Display error messages using toast notifications
+        Object.values(errors).forEach((error) => toast.error(error));
+      }
+    } catch (error) {
+      console.log("SUBMIT ERROR", error);
+    }
+  };
+
   const ValidationRules = {
     first_name: { required: true },
     last_name: { required: true },
     mobile: { required: true },
-    work: { required: true },
     address: { required: true },
-    price: { required: true },
-    work_date: { required: true },
-  }
-
-  const [errors, setErrors] = useState({})
-
-  const dispatch = (action) => {
-    switch (action.type) {
-      case 'SET_ERRORS':
-        setErrors(action.payload)
-        break
-      // Add other actions as needed
-      default:
-        break
-    }
-  }
-
-  const handleChange = (e) => {
-    const { name, value, type, files } = e.target
-
-    if (type === 'file') {
-      // Handle file input
-      setInitialvalues((prevValues) => ({
-        ...prevValues,
-        [name]: files[0], // Store the file object
-      }))
-    } else {
-      // Handle text input
-      setInitialvalues((prevValues) => ({
-        ...prevValues,
-        [name]: value,
-      }))
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (submitHalper(initialvalues, ValidationRules, dispatch)) {
-      // const responce = await new BasicProvider(``).postRequest(initialvalues)
-      setErrors({})
-    } else {
-      // Display error messages using toast notifications
-      Object.values(errors).forEach((error) => toast.error(error))
-    }
-  }
-  const [visible, setVisible] = useState(false)
+    // works: { required: true },
+  };
 
   return (
     <>
-      <CContainer>
-        <SubHeader />
+      <SubHeader
+        subHeaderItems={subHeaderItems}
+        moduleName="customers"
+        deletionType="trash"
+        // isHideAddButton={true}
+      />
+      <CContainer fluid>
         <CForm onSubmit={handleSubmit}>
           <CRow className="justify-content-between">
             <CCol md={8} lg={6}>
               <CCard className="shadow mb-4">
-                {/* <CCardHeader>
-                  <h1 className="h3 text-center">Create an account</h1>
-                </CCardHeader> */}
+                <CCardHeader>
+                  <h5>Personal Information</h5>
+                </CCardHeader>
+                <CCardBody>
+                  {formFields.map(({ id, label, placeholder }) => (
+                    <div className="mb-3" key={id}>
+                      <CFormLabel htmlFor={id}>{label}</CFormLabel>
+                      <CFormInput
+                        type="text"
+                        id={id}
+                        name={id}
+                        placeholder={placeholder}
+                        onChange={handleChange}
+                        value={initialvalues[id]}
+                      />
+                    </div>
+                  ))}
+                </CCardBody>
+              </CCard>
+              <CCard className="shadow">
+                <CCardHeader>
+                  <h5>Profile</h5>
+                </CCardHeader>
                 <CCardBody>
                   <div className="mb-3">
-                    <CFormLabel htmlFor="first_name">Enter First Name</CFormLabel>
+                    <CFormLabel htmlFor="image">Select Image</CFormLabel>
                     <CFormInput
-                      type="first_name"
-                      id="first_name"
-                      name="first_name"
-                      placeholder="First name"
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="last_name">Enter Last Name</CFormLabel>
-                    <CFormInput
-                      type="last_name"
-                      name="last_name"
-                      id="last_name"
-                      placeholder="Last name"
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="mobile">Mobile Number</CFormLabel>
-                    <CFormInput
-                      type="text"
-                      id="mobile"
-                      name="mobile"
-                      placeholder="Enter mobile number"
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="work">Work</CFormLabel>
-                    <CFormInput
-                      type="text"
-                      id="work"
-                      name="work"
-                      placeholder="Enter Work"
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="price">Price</CFormLabel>
-                    <CFormInput
-                      type="text"
-                      id="price"
-                      name="price"
-                      placeholder="Enter price"
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="address">Address</CFormLabel>
-                    <CFormInput
-                      type="text"
-                      id="address"
-                      name="address"
-                      placeholder="Enter address"
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="work_date">Enter Work Date</CFormLabel>
-                    <DatePicker
-                      selected={initialvalues?.work_date}
-                      //   onChange={(date) => setStartDate(date)}
-                      name="work_date"
-                      dateFormat="dd/MM/yyyy"
+                      type="file"
+                      id="image"
+                      placeholder="Choose an image"
+                      name="image"
+                      accept="image/*" // Accepts only image files
                       onChange={handleChange}
                     />
                   </div>
@@ -188,32 +203,74 @@ export default function CreateBill(params) {
 
             <CCol md={4} lg={6}>
               <CCard className="shadow">
+                <CCardHeader>
+                  <h5>Add Work's</h5>
+                </CCardHeader>
                 <CCardBody>
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="image">Select Image</CFormLabel>
-                    <CFormInput
-                      type="file"
-                      id="imageUpload"
-                      placeholder="Choose an image"
-                      name="image"
-                      accept="image/*" // Accepts only image files
-                      onChange={handleChange}
-                    />
+                  {initialvalues.works.map((work, index) => (
+                    <div key={index} className="mb-3">
+                      <CFormLabel htmlFor={`work_name_${index}`}>
+                        Work Name
+                      </CFormLabel>
+                      <CFormInput
+                        type="text"
+                        id={`work_name_${index}`}
+                        name="work_name"
+                        placeholder="Enter work name"
+                        value={work.work_name}
+                        onChange={(e) => handleChange(e, index)}
+                      />
+                      <CFormLabel htmlFor={`price_${index}`}>Price</CFormLabel>
+                      <CFormInput
+                        type="text"
+                        id={`price_${index}`}
+                        name="price"
+                        placeholder="Enter price"
+                        value={work.price}
+                        onChange={(e) => handleChange(e, index)}
+                      />
+                      <CButton
+                        color="danger"
+                        onClick={() => removeWork(index)}
+                        className="mt-2"
+                      >
+                        Remove Work
+                      </CButton>
+                    </div>
+                  ))}
+                  <div className="d-flex justify-content-between align-items-center">
+                    <CButton
+                      type="button"
+                      color="primary"
+                      onClick={addWork}
+                      className="me-5"
+                    >
+                      Add Work
+                    </CButton>
+                    <div className="font-bold">
+                      Total: {initialvalues.total.toFixed(2)}
+                    </div>
                   </div>
 
-                  <div className="d-flex justify-content-around">
-                    <CButton type="submit" color="success" className="flex-grow-1 mx-2 text-white">
+                  <div className="d-flex justify-content-around mt-5 ">
+                    <CButton
+                      type="submit"
+                      color="success"
+                      className="flex-grow-1 mx-2 text-white"
+                    >
                       Save
                     </CButton>
-                    <CButton type="reset" color="danger" className="flex-grow-1 mx-2 text-white">
+                    <CButton
+                      type="reset"
+                      color="danger"
+                      className="flex-grow-1 mx-2 text-white"
+                    >
                       Cancel
                     </CButton>
                     <CButton
-                      //   type="reset"
                       color="info"
-                      onClick={() => setVisible(true)}
-                      setVisible={!visible}
                       className="flex-grow-1 mx-2 text-white"
+                      disabled={!id}
                     >
                       Print Bill
                     </CButton>
@@ -223,13 +280,7 @@ export default function CreateBill(params) {
             </CCol>
           </CRow>
         </CForm>
-        <DeleteConfirmation
-          visible={visible}
-          //   onClose={() => setVisible(!visible)}
-          setVisible={setVisible}
-          // onConfirm={handleDelete}
-        />
       </CContainer>
     </>
-  )
+  );
 }

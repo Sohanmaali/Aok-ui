@@ -9,11 +9,13 @@ class BasicProvider {
   async getRequest() {
     try {
       const config = this.getHeaders();
-      if (this.url.includes('files')) {
-        config.responseType = 'blob'
+      if (this.url.includes("files")) {
+        config.responseType = "blob";
       }
       const response = await axios.get(this.url, config);
-      return this.processResponse(response?.data?.data);
+
+      console.log("response", response);
+      return this.processResponse(response);
     } catch (error) {
       this.handleException(error);
     }
@@ -21,10 +23,7 @@ class BasicProvider {
 
   async postRequest(data) {
     try {
-      // console.log("this.getHeaders(data)", this.getHeaders(data));
-
       const response = await axios.post(this.url, data, this.getHeaders(data));
-      // console.log(response?.data);
 
       return this.processResponse(response);
     } catch (error) {
@@ -34,13 +33,14 @@ class BasicProvider {
 
   processResponse(response) {
     if (response.status >= 200 && response.status < 300) {
-      if (response.data.data) {
-        return response.data;
+      if (response?.data?.data) {
+        return response?.data;
       } else {
         return response;
       }
     } else {
-      throw new Error(response);
+      const errorMessage = response?.data?.message || "Unknown error occurred";
+      throw new Error(`Error: ${response.status} - ${errorMessage}`);
     }
   }
 
@@ -54,12 +54,10 @@ class BasicProvider {
     }
 
     const token = this.getTokenFromCookie();
-    // console.log("token", token);
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
-    // console.log("headers", headers);
 
     return { headers: headers };
   }
@@ -74,21 +72,21 @@ class BasicProvider {
     //   console.error(error.response.data);
     // }
 
-    if (error.response.data.statusCode === 401) {
-      Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-        path: "",
-        domain: process.env.REACT_APP_URL,
-      });
-      this.dispatch({ type: "set", isNotLoggin: error.response.data.error });
-    }
+    // if (error.response.data.statusCode === 401) {
+    //   Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
+    //     path: "",
+    //     domain: process.env.REACT_APP_URL,
+    //   });
+    //   this.dispatch({ type: "set", isNotLoggin: error.response.data.error });
+    // }
 
-    if (error.response.data.statusCode === 403) {
-      Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-        path: "",
-        domain: process.env.REACT_APP_URL,
-      });
-      this.dispatch({ type: "set", isBlock: error.response.data.data });
-    }
+    // if (error.response.data.statusCode === 403) {
+    //   Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
+    //     path: "",
+    //     domain: process.env.REACT_APP_URL,
+    //   });
+    //   this.dispatch({ type: "set", isBlock: error.response.data.data });
+    // }
 
     if (error.hasOwnProperty("response")) {
       if (error.response.hasOwnProperty("data")) {
@@ -124,7 +122,7 @@ class BasicProvider {
     try {
       var config = this.getHeaders();
       const response = await axios.post(this.url, data, config);
-      console.log(response);
+
       return this.processResponse(response);
     } catch (error) {
       console.error("Error occurred during DELETE request:", error);

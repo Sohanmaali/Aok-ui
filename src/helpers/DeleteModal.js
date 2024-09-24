@@ -1,42 +1,133 @@
-import React from 'react'
-import { CModal, CButton, CModalBody, CModalFooter } from '@coreui/react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { CButton, CModal, CModalBody, CModalFooter } from "@coreui/react";
+import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
+import HelperFunctions from "./HelperFunction"; // Import the HelperFunctions class
 
-const DeleteModal = ({ visible, onClose }) => {
+export const DeleteModal = ({
+  moduleName,
+  visible,
+  setVisible,
+  currentPage,
+  rowPerPage,
+  handleClose,
+  userId,
+  deletionType,
+  isDirectDelete,
+  visitedProfileId,
+}) => {
+  const dispatch = useDispatch();
+
+  if (moduleName) {
+    var parts = moduleName.split("/");
+    var module = parts.pop();
+  }
+
+  const capitalizeFirstLetter = (word) => {
+    return word?.charAt(0).toUpperCase() + word?.slice(1);
+  };
+
+  const handleDelete = async () => {
+    if (deletionType === "trash") {
+      console.log("if block");
+
+      const success = await HelperFunctions.trashData(moduleName, userId);
+      dispatch({ type: "set", toggleCleared: false });
+      dispatch({ type: "set", selectedrows: [] });
+      setVisible(false);
+      console.log("success", success);
+
+      if (success) {
+        const response = await HelperFunctions.getData(
+          moduleName,
+          currentPage,
+          rowPerPage
+        );
+        dispatch({ type: "set", data: { [`${module}`]: response.data } });
+        dispatch({ type: "set", totalCount: response.total });
+      }
+    } else {
+      const success = await HelperFunctions.deleteData(
+        moduleName,
+        userId,
+        visitedProfileId
+      );
+      console.log("success", success);
+
+      dispatch({ type: "set", toggleCleared: false });
+      dispatch({ type: "set", selectedrows: [] });
+      setVisible(false);
+
+      if (success?.status === "success") {
+        const response = await HelperFunctions.getData(
+          `${moduleName}/trash`,
+          currentPage,
+          rowPerPage
+        );
+        dispatch({
+          type: "set",
+          data: {
+            [moduleName]: response.data,
+          },
+        });
+        dispatch({ type: "set", totalCount: response.total });
+      } else {
+        const response = await HelperFunctions.getData(
+          moduleName,
+          currentPage,
+          rowPerPage,
+          visitedProfileId
+        );
+        console.log("response=============>>>.", response);
+
+        dispatch({ type: "set", data: { [`${module}`]: response.data } });
+        dispatch({ type: "set", totalCount: response.total });
+        console.log("Module", module);
+      }
+    }
+  };
+
   return (
-    <>
-      <CModal visible={visible} onClose={() => onClose(false)} alignment="center">
-        <CModalBody className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            {/* Outer circle */}
-            <div className="w-16 h-16 rounded-full border-4 border-red-500 flex items-center justify-center">
-              {/* Icon circle */}
-              <div className="w-12 h-12 rounded-full border-2 border-gray-500 flex items-center justify-center">
-                <FontAwesomeIcon icon={faTimes} size="lg" />
-              </div>
-            </div>
-          </div>
+    <CModal
+      alignment="center"
+      visible={visible}
+      onClose={handleClose}
+      className="delete_item_box"
+    >
+      <CModalBody className="text-center mt-4">
+        <div className="logo_x m-auto mb-3">x</div>
+        <span>
+          Are you sure you want to delete the{" "}
+          {capitalizeFirstLetter(module?.slice(0, -1))} ?
+        </span>
+      </CModalBody>
+      <CModalFooter className="model_footer justify-content-center mb-3 pt-0">
+        <CButton
+          className="delete_btn model_btn"
+          color="danger"
+          onClick={handleDelete}
+        >
+          Yes
+        </CButton>
+        <CButton
+          className="close_btn model_btn"
+          color="secondary"
+          onClick={handleClose}
+        >
+          No, cancel
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+};
 
-          <div>Are you sure you want to delete this product?</div>
-        </CModalBody>
-        <CModalFooter className="d-flex justify-content-center">
-          <CButton
-            color="danger"
-            onClick={() => {
-              // Handle the "Yes" action here
-              onClose(false)
-            }}
-          >
-            Yes
-          </CButton>
-          <CButton color="secondary" onClick={() => onClose(false)}>
-            No
-          </CButton>
-        </CModalFooter>
-      </CModal>
-    </>
-  )
-}
-
-export default DeleteModal
+DeleteModal.propTypes = {
+  visible: PropTypes.bool,
+  moduleName: PropTypes.string,
+  handleClose: PropTypes.func,
+  currentPage: PropTypes.number,
+  rowPerPage: PropTypes.number,
+  userId: PropTypes.string,
+  deletionType: PropTypes.string,
+  isDirectDelete: PropTypes.bool,
+  visitedProfileId: PropTypes.string,
+};

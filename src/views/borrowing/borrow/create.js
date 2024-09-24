@@ -5,23 +5,19 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
-  // CFormCheck,
   CButton,
   CCard,
   CCardBody,
   CCardHeader,
-  // CCardHeader,
-  // CLink,
+  CSpinner,
 } from "@coreui/react";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
-// import { submitHalper } from '../../../helpers/submitHalper'
-// import submitHalper from '.'
+import "react-datepicker/dist/react-datepicker.css";
 
-// import { useDispatch } from 'react-redux'
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-// import { AppBreadcrumb } from '../../../components'
+import { useNavigate, useParams } from "react-router-dom";
+
 import SubHeader from "../../../components/custome/SubHeader";
 import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import BasicProvider from "../../../constants/BasicProvider";
@@ -33,11 +29,6 @@ var subHeaderItems = [
     icon: cilSpreadsheet,
   },
   {
-    name: "Create borrowing",
-    link: "/borrowing/create",
-    icon: cilPencil,
-  },
-  {
     name: "Trash borrowing",
     link: "/borrowing/trash",
     icon: cilTrash,
@@ -46,7 +37,8 @@ var subHeaderItems = [
 
 export default function CreateBorrow(params) {
   // const [startDate, setStartDate] = useState(new Date())
-  // const { id } = useParams()
+  const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -57,17 +49,23 @@ export default function CreateBorrow(params) {
     work_name: "",
     address: "",
     price: "",
-    work_date: new Date(),
+    work_date: "",
     image: "",
   });
 
   const fetchData = async () => {
-    // const response = await new BasicProvider(`borrowing/${id}`).getRequest()
-    // if (response.message == 'success') setInitialvalues(response?.data?.data)
+    const response = await new BasicProvider(
+      `borrowing/show/${id}`,
+      dispatch
+    ).getRequest();
+
+    if (response.status == "success") setInitialvalues(response?.data);
   };
 
   useEffect(() => {
-    fetchData();
+    if (id) {
+      fetchData();
+    }
   }, []);
 
   const dispatch = useDispatch();
@@ -111,22 +109,23 @@ export default function CreateBorrow(params) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const response = await new BasicProvider(
         `borrowing`,
         dispatch
       ).postRequest(initialvalues);
-      console.log("response", response);
 
-      navigate(`/borrowing/create/${response.data.id}/info`); // Adjust the URL as needed
       toast.success("Data created");
+      navigate(`/borrowing/${response.data._id}/info`); // Adjust the URL as needed
 
       setErrors({});
 
       Object.values(errors).forEach((error) => toast.error(error));
     } catch (error) {
       console.log("error", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -158,6 +157,7 @@ export default function CreateBorrow(params) {
                       type="text"
                       id="first_name"
                       name="first_name"
+                      value={initialvalues?.first_name || ""}
                       className=" input-outline"
                       placeholder="First name"
                       onChange={handleChange}
@@ -169,6 +169,7 @@ export default function CreateBorrow(params) {
                     <CFormInput
                       type="last_name"
                       name="last_name"
+                      value={initialvalues?.last_name || ""}
                       id="last_name"
                       placeholder="Last name"
                       onChange={handleChange}
@@ -181,6 +182,7 @@ export default function CreateBorrow(params) {
                       type="text"
                       id="mobile"
                       name="mobile"
+                      value={initialvalues?.mobile}
                       placeholder="Enter mobile number"
                       onChange={handleChange}
                     />
@@ -190,6 +192,7 @@ export default function CreateBorrow(params) {
                     <CFormInput
                       type="text"
                       id="work_name"
+                      value={initialvalues?.work_name || ""}
                       name="work_name"
                       placeholder="Enter Work"
                       onChange={handleChange}
@@ -201,6 +204,7 @@ export default function CreateBorrow(params) {
                     <CFormInput
                       type="text"
                       id="address"
+                      value={initialvalues?.address || ""}
                       name="address"
                       placeholder="Enter address"
                       onChange={handleChange}
@@ -212,29 +216,25 @@ export default function CreateBorrow(params) {
                       type="text"
                       id="price"
                       name="price"
+                      value={initialvalues?.price || ""}
                       placeholder="Enter price"
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="mb-3">
-                    <div>
-                      <CFormLabel
-                        htmlFor="work_date"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Work Date *
-                      </CFormLabel>
-                    </div>
-                    <div className="w-100">
+                  <CRow className="mb-3">
+                    <CFormLabel htmlFor="work_date" className="">
+                      Work Date*
+                    </CFormLabel>
+
+                    <CCol>
                       <DatePicker
-                        selected={initialvalues?.work_date}
-                        onChange={handleDateChange} // Use the separate date change handler
-                        name="work_date"
-                        dateFormat="dd/MM/yyyy"
-                        className="w-100"
+                        // selected={new Date(initialvalues?.data) || null}
+                        // onChange={(date) => setSelectedDate(date)}
+                        placeholderText="Select a date"
+                        className="form-control w-full my-date-picker"
                       />
-                    </div>
-                  </div>
+                    </CCol>
+                  </CRow>
                 </CCardBody>
               </CCard>
             </CCol>
@@ -275,8 +275,18 @@ export default function CreateBorrow(params) {
                       type="submit"
                       color="success"
                       className="flex-grow-1 mx-2 text-white"
+                      disabled={isLoading} // Disable the button when loading
                     >
-                      Save
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm" /> Saving...{" "}
+                          {/* Display spinner when loading */}
+                        </>
+                      ) : id ? (
+                        "update"
+                      ) : (
+                        "save"
+                      )}
                     </CButton>
                     <CButton
                       type="reset"

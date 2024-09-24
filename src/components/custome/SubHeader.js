@@ -1,5 +1,5 @@
-import { cilSearch } from '@coreui/icons'
-import CIcon from '@coreui/icons-react'
+import { cilSearch } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
 import {
   CButton,
   CCol,
@@ -11,17 +11,18 @@ import {
   CFormInput,
   CHeader,
   CRow,
-} from '@coreui/react'
+} from "@coreui/react";
 
-import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
-import { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { CBreadcrumb, CBreadcrumbItem } from "@coreui/react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { DeleteModal } from "../../helpers/DeleteModal";
 // import { DeleteModal } from 'src/helpers/deleteModalHelper'
 // import { CContainer } from '@coreui/react'
 
 function SubHeader(props) {
-  const location = useLocation()
+  const location = useLocation();
 
   const {
     searchInput,
@@ -35,43 +36,49 @@ function SubHeader(props) {
     defaultPage,
     isHideAddButton,
     isDirectDelete,
-  } = props
+  } = props;
 
-  const [activeLink, setActiveLink] = useState('')
+  const [activeLink, setActiveLink] = useState("");
 
-  const [visible, setVisible] = useState(false)
-  const [search, setSearch] = useState(searchInput || '')
-  const selectedRow = useSelector((state) => state.selectedrows)
+  const [visible, setVisible] = useState(false);
+  const [search, setSearch] = useState(searchInput || "");
+  const selectedRow = useSelector((state) => state.selectedrows);
 
-  const dispatch = useDispatch()
-  const toggleCleared = useSelector((state) => state.toggleCleared)
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const toggleCleared = useSelector((state) => state.toggleCleared);
+  const navigate = useNavigate();
   //// active current page when page render
 
   useEffect(() => {
     if (subHeaderItems != null && subHeaderItems.length > 0) {
-      dispatch({ type: 'set', selectedrows: [] })
-      const currentLink = location.pathname
-      const activeItem = props.subHeaderItems.find((item) => item.link === currentLink)
-      setActiveLink(activeItem ? activeItem.name : props.subHeaderItems[0].name)
+      dispatch({ type: "set", selectedrows: [] });
+      const currentLink = location.pathname;
+      const activeItem = props.subHeaderItems.find(
+        (item) => item.link === currentLink
+      );
+      setActiveLink(
+        activeItem ? activeItem.name : props.subHeaderItems[0].name
+      );
     }
-    setSearch(searchInput)
-  }, [location])
+    setSearch(searchInput);
+  }, [location]);
 
-  const indexofCreate = subHeaderItems?.find((item) => item.link.includes('create'))
+  const indexofCreate = subHeaderItems?.find((item) =>
+    item.link.includes("create")
+  );
   const handleItemClick = (item, index) => {
-    navigate(item.link)
-  }
+    navigate(item.link);
+  };
 
   const handleAddNew = () => {
     if (indexofCreate != undefined) {
-      navigate(indexofCreate.link)
+      navigate(indexofCreate.link);
     }
-  }
+  };
 
   return (
     <>
-      <div className=" mb-4 bg-white max-w-screen-xl ">
+      <div className=" mb-4 bg-white max-w-screen-xl border">
         <CRow xs={{ cols: 1 }} lg={{ cols: 2 }} className=" w-100 ">
           <CCol className="d-flex align-items-center">
             <div className="my-3 d-flex align-items-center justify-center ms-3">
@@ -90,7 +97,7 @@ function SubHeader(props) {
                           key={index}
                           className=" btn"
                           onClick={() => {
-                            handleItemClick(item, index)
+                            handleItemClick(item, index);
                           }}
                         >
                           <CIcon icon={item.icon} className="mx-2 " />
@@ -99,20 +106,22 @@ function SubHeader(props) {
                       ))}
                     </CDropdownMenu>
                   </CDropdown>
-                  {!props.isHideAddButton && <span className="border-left"></span>}
+                  {!props.isHideAddButton && (
+                    <span className="border-left"></span>
+                  )}
                   {/* <span className="border-left"></span> */}
                 </div>
               )}
 
               {Array.isArray(selectedRow) && selectedRow.length > 0 ? (
                 <>
-                  <span className="selected_row">{selectedRow.length} selected:</span>
-                  {console.log('SELECTEDS ROW', selectedRow)}
-
+                  <span className="selected_row">
+                    {selectedRow.length} selected:
+                  </span>
                   <CButton
                     className="delete_btn ml-3"
                     onClick={() => {
-                      setVisible(true)
+                      setVisible(true);
                     }}
                   >
                     Delete Selected
@@ -120,11 +129,13 @@ function SubHeader(props) {
                 </>
               ) : (
                 <>
-                  {
+                  {isHideAddButton ? (
                     <CButton className="btn btn-success" onClick={handleAddNew}>
                       Add New
                     </CButton>
-                  }
+                  ) : (
+                    ""
+                  )}
                 </>
               )}
             </div>
@@ -145,8 +156,8 @@ function SubHeader(props) {
                 <CButton
                   className="btn btn-success"
                   onClick={() => {
-                    setSearchCurrentPage(search)
-                    handleFilter(search)
+                    setSearchCurrentPage(search);
+                    handleFilter(search);
                   }}
                 >
                   Search
@@ -154,8 +165,8 @@ function SubHeader(props) {
                 <CButton
                   className="btn btn-danger ms-2"
                   onClick={() => {
-                    onReset()
-                    setSearch('')
+                    onReset();
+                    setSearch("");
                   }}
                 >
                   Reset
@@ -165,7 +176,7 @@ function SubHeader(props) {
           )}
         </CRow>
 
-        {/* <DeleteModal
+        <DeleteModal
           visible={visible}
           setVisible={setVisible}
           userId={selectedRow}
@@ -175,9 +186,9 @@ function SubHeader(props) {
           currentPage={defaultPage}
           rowPerPage={rowPerPage}
           isDirectDelete={isDirectDelete}
-        /> */}
+        />
       </div>
     </>
-  )
+  );
 }
-export default SubHeader
+export default SubHeader;

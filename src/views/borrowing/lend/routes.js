@@ -1,13 +1,13 @@
-import React from 'react'
+import React from "react";
 
-const AddBill = React.lazy(() => import('./create'))
-const AllBill = React.lazy(() => import('./all'))
-const TrashBill = React.lazy(() => import('./trash'))
+const Addlend = React.lazy(() => import("./create"));
+const Alllend = React.lazy(() => import("./all"));
+const Trashlend = React.lazy(() => import("./trash"));
 
 const routes = [
-  { path: '/lend/create', name: 'AddBill', element: AddBill },
-  { path: '/lend/all', name: 'AllBill', element: AllBill },
-  { path: '/lend/trash', name: 'TrashBill', element: TrashBill },
-  { path: '/lend/:id/edit', name: 'TrashBill', element: AddBill },
-]
-export default routes
+  { path: "/lend/create", name: "Addlend", element: Addlend },
+  { path: "/lend/all", name: "Alllend", element: Alllend },
+  { path: "/lend/trash", name: "Trashlend", element: Trashlend },
+  { path: "/lend/:id/edit", name: "Trashlend", element: Addlend },
+];
+export default routes;
