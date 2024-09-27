@@ -1,7 +1,7 @@
 import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CContainer } from "@coreui/react";
-// import moment from 'moment'
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
@@ -185,7 +185,7 @@ export default function AllBill() {
       name: "Create At",
       selector: (row) => (
         <div className="data_table_colum">
-          {DateTimeHelper.formatDate(row?.create_at)}
+          {moment(row?.create_at).fromNow()}
         </div>
       ),
     },

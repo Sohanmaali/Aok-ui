@@ -19,6 +19,7 @@ import BasicProvider from "../../../constants/BasicProvider";
 // import noImage from 'src/assets/images/noImage.png'
 
 import DateTimeHelper from "../../../helpers/DateTimeHepler";
+import moment from "moment";
 // const URL = process.env.REACT_APP_NODE_URL
 
 var subHeaderItems = [
@@ -193,7 +194,7 @@ export default function Customers() {
       name: "Create At",
       selector: (row) => (
         <div className="data_table_colum">
-          {DateTimeHelper.formatDate(row?.create_at)}
+          {moment(row?.create_at).fromNow()}
         </div>
       ),
     },
@@ -206,7 +207,7 @@ export default function Customers() {
             <CIcon
               className="pointer_cursor"
               icon={cilPencil}
-              onClick={() => navigate(`/borrowing/${row._id}/edit`)}
+              onClick={() => navigate(`/borrowing/${row._id}/info`)}
             />
           </div>
 

@@ -22,6 +22,7 @@ import SubHeader from "../../../components/custome/SubHeader";
 import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import BasicProvider from "../../../constants/BasicProvider";
 import { useDispatch } from "react-redux";
+import ImagePreview from "../../../components/custome/ImagePreview";
 var subHeaderItems = [
   {
     name: "All borrowing",
@@ -89,7 +90,7 @@ export default function CreateBorrow(params) {
       // Handle file input
       setInitialvalues((prevValues) => ({
         ...prevValues,
-        [name]: files[0], // Store the file object
+        [name]: URL.createObjectURL(files[0]), // Store the file object
       }));
     } else {
       // Handle text input
@@ -256,21 +257,12 @@ export default function CreateBorrow(params) {
                       onChange={handleChange}
                     />
                   </div>
-                  {/* <div className="mb-3">
-                    <CFormLabel htmlFor="password">Password</CFormLabel>
-                    <CFormInput type="password" id="password" placeholder="••••••••"  />
-                  </div>
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="confirm-password">Confirm password</CFormLabel>
-                    <CFormInput
-                      type="password"
-                      id="confirm-password"
-                      placeholder="••••••••"
-                      
-                    />
-                  </div> */}
+                  <ImagePreview
+                    initialvalues={initialvalues}
+                    setInitialvalues={setInitialvalues}
+                  />
 
-                  <div className="d-flex justify-content-around">
+                  <div className="d-flex justify-content-around mt-5">
                     <CButton
                       type="submit"
                       color="success"
