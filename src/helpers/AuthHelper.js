@@ -21,9 +21,9 @@ class AuthHelpers {
           {
             expires: 30,
             path: "/",
-            domain: process.env.REACT_APP_DOMAIN,
-            sameSite: "None", // Changed to None for cross-domain
-            secure: true, // Ensure this is true if using HTTPS
+            // domain: process.env.REACT_APP_DOMAIN,
+            // sameSite: "None", // Changed to None for cross-domain
+            // secure: true, // Ensure this is true if using HTTPS
           }
         );
 
