@@ -51,8 +51,8 @@ class AuthHelpers {
 
     try {
       Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-        path: "",
-        domain: process.env.REACT_APP_DOMAIN,
+        path: "/",
+        // domain: process.env.REACT_APP_DOMAIN,
       });
     } catch (error) {
       console.error(error);
