@@ -18,9 +18,11 @@ class AuthHelpers {
             expires: 30,
             path: "/",
             domain: process.env.REACT_APP_DOMAIN,
-            sameSite: "strict",
+            sameSite: "None", // Changed to None for cross-domain
+            secure: true, // Ensure this is true if using HTTPS
           }
         );
+
         dispatch({ type: "set", isLogin: true });
 
         navigate("/dashboard", { replace: true });

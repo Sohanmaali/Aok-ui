@@ -109,19 +109,22 @@ export default function CreateAdmin() {
       // if (!data) {
       //   return;
       // }
+      let response;
       if (id) {
-        const response = await new BasicProvider(
+        response = await new BasicProvider(
           `admin/update/${id}`,
           dispatch
         ).patchRequest(initialvalues);
-        navigate(`/admin/${response.data._id}/edit`);
+
+        toast.success("Data updated successfully");
         setErrors({});
       } else {
-        const response = await new BasicProvider(`admin`, dispatch).postRequest(
+        response = await new BasicProvider(`admin`, dispatch).postRequest(
           initialvalues
         );
         toast.success("Data created successfully");
       }
+      navigate(`/admin/${response.data._id}/edit`);
     } catch (error) {
       Object.values(errors).forEach((error) => toast.error(error));
       toast.error("Error saving data");

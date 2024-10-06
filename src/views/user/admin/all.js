@@ -188,7 +188,7 @@ export default function AllAdmins() {
             <CIcon
               className="pointer_cursor"
               icon={cilPencil}
-              onClick={() => navigate(`/admin/${row._id}/info`)}
+              onClick={() => navigate(`/admin/${row._id}/edit`)}
             />
           </div>
 
