@@ -13,7 +13,10 @@ class AuthHelpers {
 
       if (response.data.access_token) {
         console.log("in side if block");
-        console.log("process.env.REACT_APP_COOKIE_PREFIX");
+        console.log(
+          "process.env.REACT_APP_COOKIE_PREFIX",
+          process.env.REACT_APP_COOKIE_PREFIX
+        );
 
         Cookies.set(
           `${process.env.REACT_APP_COOKIE_PREFIX}_auth`,
