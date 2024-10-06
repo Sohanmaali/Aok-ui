@@ -2,6 +2,7 @@ import BorrowingRoutes from "./views/borrowing/borrow/routes";
 import LendRoutes from "./views/borrowing/lend/routes";
 import BillRouters from "./views/Bill/routes";
 import Calculator from "./views/calculator/routes";
+import AdminRouters from "./views/user/admin/routes";
 
 // const BorrowingRoutes = React.lazy(() =>
 // import("./views/borrowing/borrow/routes")
@@ -22,6 +23,7 @@ const routes = [
   ...LendRoutes,
   ...BillRouters,
   ...Calculator,
+  ...AdminRouters,
   // =======================================================================
   { path: "/", exact: true, name: "Home" },
   { path: "/dashboard", name: "Dashboard", element: Dashboard },

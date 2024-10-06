@@ -23,11 +23,11 @@ class AuthHelpers {
         );
         dispatch({ type: "set", isLogin: true });
 
-        // navigate("/dashboard");
         navigate("/dashboard", { replace: true });
       }
     } catch (error) {
       console.error(error);
+      return error;
     }
   }
 

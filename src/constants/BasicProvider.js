@@ -24,7 +24,6 @@ class BasicProvider {
   async postRequest(data) {
     try {
       const response = await axios.post(this.url, data, this.getHeaders(data));
-
       return this.processResponse(response);
     } catch (error) {
       this.handleException(error);
@@ -68,25 +67,25 @@ class BasicProvider {
   }
 
   handleException(error) {
-    // if (process.env.REACT_APP_DEBUG) {
-    //   console.error(error.response.data);
-    // }
+    if (process.env.REACT_APP_DEBUG) {
+      console.error(error.response.data);
+    }
 
-    // if (error.response.data.statusCode === 401) {
-    //   Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-    //     path: "",
-    //     domain: process.env.REACT_APP_URL,
-    //   });
-    //   this.dispatch({ type: "set", isNotLoggin: error.response.data.error });
-    // }
+    if (error.response.data.statusCode === 401) {
+      Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
+        path: "",
+        domain: process.env.REACT_APP_URL,
+      });
+      this.dispatch({ type: "set", isNotLoggin: error.response.data.error });
+    }
 
-    // if (error.response.data.statusCode === 403) {
-    //   Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
-    //     path: "",
-    //     domain: process.env.REACT_APP_URL,
-    //   });
-    //   this.dispatch({ type: "set", isBlock: error.response.data.data });
-    // }
+    if (error.response.data.statusCode === 403) {
+      Cookies.remove(`${process.env.REACT_APP_COOKIE_PREFIX}_auth`, {
+        path: "",
+        domain: process.env.REACT_APP_URL,
+      });
+      this.dispatch({ type: "set", isBlock: error.response.data.data });
+    }
 
     if (error.hasOwnProperty("response")) {
       if (error.response.hasOwnProperty("data")) {

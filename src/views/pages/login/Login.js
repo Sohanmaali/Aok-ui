@@ -14,7 +14,7 @@ import {
   CRow,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import { cilLockLocked, cilUser } from "@coreui/icons";
+import { cilEyedropper, cilLockLocked, cilUser } from "@coreui/icons";
 // import { Value } from 'sass'
 // import BasicProvider from '../../../helpers/basicProvider'
 import { useDispatch } from "react-redux";
@@ -24,21 +24,28 @@ const Login = () => {
   const [initialValues, setInitialValues] = useState({});
   const dispatch = useDispatch();
   // const { loading, error } = useSelector((state) => state);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      try {
-        AuthHelpers.login(initialValues, navigate, dispatch);
-      } catch (error) {
-        console.log("error of Auth ", error);
+      const response = await AuthHelpers.login(
+        initialValues,
+        navigate,
+        dispatch
+      );
+      if (response && response.error === "Unauthorized") {
+        setInitialValues({ email: "", password: "" });
+        setError("Please Provide Valide Email or Password");
       }
     } catch (error) {
-      console.log("ERROR", error);
+      console.log("error of Auth ", error);
     }
   };
 
   const handleChange = (e) => {
+    setError("");
     const { name, value } = e.target;
     setInitialValues((prev) => ({ ...prev, [name]: value }));
   };
@@ -64,6 +71,7 @@ const Login = () => {
                       <CFormInput
                         placeholder="Enter Email"
                         autoComplete="email"
+                        value={initialValues?.email}
                         name="email"
                         onChange={handleChange}
                       />
@@ -75,11 +83,20 @@ const Login = () => {
                       <CFormInput
                         type="password"
                         placeholder="Password"
+                        value={initialValues?.password}
                         name="password"
                         autoComplete="current-password"
                         onChange={handleChange}
                       />
                     </CInputGroup>
+                    <CRow>
+                      <CCol xs={12} style={{ paddingBottom: "50px" }}>
+                        <div className="text-danger">
+                          {error ? error : <div>&nbsp;&nbsp;</div>}
+                        </div>
+                      </CCol>
+                    </CRow>
+
                     <CRow>
                       <CCol xs={6}>
                         <CButton color="success" type="submit" className="px-4">
