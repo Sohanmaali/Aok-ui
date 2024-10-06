@@ -1,4 +1,10 @@
-import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
+import {
+  cilPencil,
+  cilRecycle,
+  cilReload,
+  cilSpreadsheet,
+  cilTrash,
+} from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CContainer } from "@coreui/react";
 // import moment from 'moment'
@@ -216,7 +222,7 @@ export default function BorrowingTrash() {
           <div className="edit-btn">
             <CIcon
               className="pointer_cursor"
-              icon={cilPencil}
+              icon={cilReload}
               onClick={() => restore(row?._id)}
             />
           </div>
@@ -249,7 +255,7 @@ export default function BorrowingTrash() {
         searchInput={search}
         rowPerPage={rowPerPage}
         defaultPage={defaultPage}
-        moduleName="customers"
+        moduleName="borrowing"
         deletionType="trash"
       />
 

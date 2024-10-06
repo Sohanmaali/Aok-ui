@@ -81,7 +81,7 @@ export const DeleteModal = ({
 
         dispatch({ type: "set", data: { [`${module}`]: response.data } });
         dispatch({ type: "set", totalCount: response.total });
-        console.log("Module", module);
+        // console.log("Module", module);
       }
     }
   };

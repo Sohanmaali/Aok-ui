@@ -1,6 +1,6 @@
 import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
-import { CContainer } from "@coreui/react";
+import { CCol, CContainer, CRow, CSpinner } from "@coreui/react";
 // import moment from 'moment'
 import { useCallback, useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
@@ -14,7 +14,7 @@ import { DeleteModal } from "../../../helpers/DeleteModal";
 import BasicProvider from "../../../constants/BasicProvider";
 // import { handleSelectedRowChange, setSelectedRowForModule } from 'src/helpers/paginationCookie'
 // import HelperFunction from '../../../helpers/HelperFunctions'
-// import { ShimmerTable } from "react-shimmer-effects";
+import { ShimmerTable } from "react-shimmer-effects";
 // import CustomTooltip from 'src/components/custom/CustomTooltip'
 // import noImage from 'src/assets/images/noImage.png'
 
@@ -166,7 +166,7 @@ export default function Customers() {
           </div>
         </div>
       ),
-      width: "20%",
+      // width: "20%",
     },
 
     {
@@ -207,7 +207,7 @@ export default function Customers() {
             <CIcon
               className="pointer_cursor"
               icon={cilPencil}
-              onClick={() => navigate(`/borrowing/${row._id}/info`)}
+              onClick={() => navigate(`/borrowing/${row._id}/edit`)}
             />
           </div>
 
@@ -256,7 +256,24 @@ export default function Customers() {
 
       <CContainer fluid>
         {isLoading ? (
-          <div className="custom-table-shimmer"></div>
+          <div className="custom-table-shimmer">
+            <CRow className="justify-content-center">
+              <CCol xs="12">
+                {/* CoreUI Shimmer/Spinner */}
+                <CSpinner color="primary" size="lg" />
+                {/* You can add custom shimmer animation below */}
+                <div className="shimmer-loader">
+                  <div className="shimmer-row shimmer-row-header"></div>
+                  {[...Array(10)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="shimmer-row shimmer-row-body"
+                    ></div>
+                  ))}
+                </div>
+              </CCol>
+            </CRow>
+          </div>
         ) : (
           <div className="datatable">
             <DataTable
@@ -275,7 +292,6 @@ export default function Customers() {
               selectableRows
               selectableRowsHighlight
               highlightOnHover
-              // paginationRowsPerPageOptions={RowsPerPage}
               paginationPerPage={rowPerPage}
               onChangeRowsPerPage={(value) => {
                 count = value;
@@ -288,6 +304,7 @@ export default function Customers() {
             />
           </div>
         )}
+
         <DeleteModal
           visible={visible}
           userId={userId}

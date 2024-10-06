@@ -23,6 +23,7 @@ import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import BasicProvider from "../../../constants/BasicProvider";
 import { useDispatch } from "react-redux";
 import ImagePreview from "../../../components/custome/ImagePreview";
+import { submitHalper } from "../../../helpers/submitHalper";
 var subHeaderItems = [
   {
     name: "All borrowing",
@@ -93,7 +94,6 @@ export default function CreateBorrow(params) {
         [name]: URL.createObjectURL(files[0]), // Store the file object
       }));
     } else {
-      // Handle text input
       setInitialvalues((prevValues) => ({
         ...prevValues,
         [name]: value,
@@ -102,27 +102,36 @@ export default function CreateBorrow(params) {
   };
 
   const handleDateChange = (date) => {
-    setInitialvalues((prevValues) => ({
-      ...prevValues,
-      work_date: date, // Store the date object
-    }));
+    if (date instanceof Date && !isNaN(date)) {
+      setInitialvalues((prevValues) => ({
+        ...prevValues,
+        work_date: date.toISOString(),
+      }));
+    } else {
+      console.error("Invalid date format");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const data = submitHalper(initialvalues, ValidationRules, dispatch);
+
+      if (!data) {
+        toast.error("Please fill all the required fields");
+        return;
+      }
+
       const response = await new BasicProvider(
         `borrowing`,
         dispatch
-      ).postRequest(initialvalues);
+      ).postRequest(data);
 
       toast.success("Data created");
-      navigate(`/borrowing/${response.data._id}/info`); // Adjust the URL as needed
+      navigate(`/borrowing/${response.data._id}/edit`); // Adjust the URL as needed
 
       setErrors({});
-
-      Object.values(errors).forEach((error) => toast.error(error));
     } catch (error) {
       console.log("error", error);
     } finally {
@@ -139,8 +148,9 @@ export default function CreateBorrow(params) {
         // onReset={() => handleFilterReset()}
         // searchInput={search}
         // rowPerPage={rowPerPage}
+        isHideAddButton={true}
         // defaultPage={defaultPage}
-        moduleName="customers"
+        moduleName="borrowing"
         deletionType="trash"
       />
       <CContainer className="">
@@ -183,9 +193,17 @@ export default function CreateBorrow(params) {
                       type="text"
                       id="mobile"
                       name="mobile"
+                      maxLength="10"
+                      minLength="10"
                       value={initialvalues?.mobile}
                       placeholder="Enter mobile number"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        // Allow only numeric input
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          handleChange(e); // Call your original change handler
+                        }
+                      }}
                     />
                   </div>
                   <div className="mb-3">
@@ -219,20 +237,28 @@ export default function CreateBorrow(params) {
                       name="price"
                       value={initialvalues?.price || ""}
                       placeholder="Enter price"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        // Allow only numeric input
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
+                          handleChange(e); // Call your original change handler
+                        }
+                      }}
                     />
                   </div>
                   <CRow className="mb-3">
                     <CFormLabel htmlFor="work_date" className="">
-                      Work Date*
+                      Work Date *
                     </CFormLabel>
-
-                    <CCol>
+                    <CCol md="12" className="w-full">
+                      {" "}
+                      {/* Full width for all screen sizes */}
                       <DatePicker
-                        // selected={new Date(initialvalues?.data) || null}
-                        // onChange={(date) => setSelectedDate(date)}
+                        selected={initialvalues?.work_date || null}
                         placeholderText="Select a date"
-                        className="form-control w-full my-date-picker"
+                        name="work_date"
+                        onChange={handleDateChange}
+                        className="form-control w-full" // Ensure the DatePicker also takes full width
                       />
                     </CCol>
                   </CRow>
@@ -240,7 +266,7 @@ export default function CreateBorrow(params) {
               </CCard>
             </CCol>
 
-            <CCol md={4} lg={6}>
+            <CCol md={4} lg={6} className="mt-4 mt-md-0  mb-4 mb-md-0">
               <CCard className="shadow">
                 <CCardHeader className="">
                   <h5>Profile</h5>
@@ -267,12 +293,11 @@ export default function CreateBorrow(params) {
                       type="submit"
                       color="success"
                       className="flex-grow-1 mx-2 text-white"
-                      disabled={isLoading} // Disable the button when loading
+                      disabled={isLoading}
                     >
                       {isLoading ? (
                         <>
                           <CSpinner size="sm" /> Saving...{" "}
-                          {/* Display spinner when loading */}
                         </>
                       ) : id ? (
                         "update"

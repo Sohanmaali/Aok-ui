@@ -12,6 +12,7 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CSpinner,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { cilEyedropper, cilLockLocked, cilUser } from "@coreui/icons";
@@ -24,11 +25,12 @@ const Login = () => {
   const [initialValues, setInitialValues] = useState({});
   const dispatch = useDispatch();
   // const { loading, error } = useSelector((state) => state);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const response = await AuthHelpers.login(
         initialValues,
@@ -41,6 +43,8 @@ const Login = () => {
       }
     } catch (error) {
       console.log("error of Auth ", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,8 +103,19 @@ const Login = () => {
 
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="success" type="submit" className="px-4">
-                          Login
+                        <CButton
+                          color="success"
+                          type="submit"
+                          className="px-4"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm" className="me-2" /> Wait...
+                            </>
+                          ) : (
+                            "Login"
+                          )}
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
