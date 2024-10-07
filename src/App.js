@@ -39,26 +39,26 @@ class App extends Component {
     return (
       <HashRouter>
         <ToastContainer> </ToastContainer>
-        <Suspense fallback={loading}>
-          <Routes>
-            <Route exact path="/login" name="Login Page" element={<Login />} />
-            <Route
-              exact
-              path="/register"
-              name="Register Page"
-              element={<Register />}
-            />
-            <Route exact path="/404" name="Page 404" element={<Page404 />} />
-            <Route exact path="/500" name="Page 500" element={<Page500 />} />
+        {/* <Suspense fallback={loading}> */}
+        <Routes>
+          <Route exact path="/login" name="Login Page" element={<Login />} />
+          <Route
+            exact
+            path="/register"
+            name="Register Page"
+            element={<Register />}
+          />
+          <Route exact path="/404" name="Page 404" element={<Page404 />} />
+          <Route exact path="/500" name="Page 500" element={<Page500 />} />
 
-            <Route
-              path="*"
-              name="Home"
-              element={validToken ? <DefaultLayout /> : <Login />}
-            />
-            {/* <Route path="*" name="Home" element={<DefaultLayout />} /> */}
-          </Routes>
-        </Suspense>
+          <Route
+            path="*"
+            name="Home"
+            element={validToken ? <DefaultLayout /> : <Login />}
+          />
+          {/* <Route path="*" name="Home" element={<DefaultLayout />} /> */}
+        </Routes>
+        {/* </Suspense> */}
       </HashRouter>
     );
   }

@@ -1,4 +1,4 @@
-import { cilPencil, cilSpreadsheet, cilTrash } from "@coreui/icons";
+import { cilPencil, cilPrint, cilSpreadsheet, cilTrash } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CContainer } from "@coreui/react";
 import moment from "moment";
@@ -140,6 +140,31 @@ export default function AllBill() {
     navigate({ search: "" });
   };
 
+  const printBill = async (id) => {
+    // setPdfLoading(true);
+    try {
+      // console.log("calling");
+
+      // Making the request to get the PDF response
+      const response = await new BasicProvider(
+        `bill/pdf/${id}`,
+        dispatch
+      ).getPdf();
+      console.log("response", response);
+
+      // response.data is already a Blob, so no need to call blob()
+      const blob = response?.data;
+
+      // Create a URL for the Blob and open it in a new tab
+      const pdfUrl = URL.createObjectURL(blob);
+      window.open(pdfUrl, "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      // setPdfLoading(false);
+    }
+  };
+
   const columns = [
     {
       name: "Name",
@@ -157,7 +182,7 @@ export default function AllBill() {
           </div>
         </div>
       ),
-      width: "20%",
+      // width: "20%",
     },
 
     {
@@ -168,7 +193,7 @@ export default function AllBill() {
       name: "Work Date",
       selector: (row) => (
         <div className="data_table_colum">
-          {DateTimeHelper.formatDate(row.work_date)}
+          {DateTimeHelper.formatDate(row?.work_date || null) || "-"}
         </div>
       ),
     },
@@ -176,7 +201,7 @@ export default function AllBill() {
       name: "Price",
       selector: (row) => (
         <div className="data_table_colum">
-          {row.price}
+          {row?.total || 0}
           {process.env.REACT_APP_CURRENCY}
         </div>
       ),
@@ -193,12 +218,22 @@ export default function AllBill() {
     {
       name: "Actions",
       cell: (row) => (
-        <div className="action-btn d-flex gap-3">
+        <div className="action-btn d-flex gap-2">
           <div className="edit-btn">
             <CIcon
               className="pointer_cursor"
               icon={cilPencil}
               onClick={() => navigate(`/bill/${row._id}/edit`)}
+            />
+          </div>
+
+          <div className="delet-btn">
+            <CIcon
+              className="pointer_cursor"
+              icon={cilPrint}
+              onClick={() => {
+                printBill(row._id);
+              }}
             />
           </div>
 

@@ -257,7 +257,7 @@ function SubHeader(props) {
   };
 
   return (
-    <div className="mb-4 bg-white max-w-screen-xl border ">
+    <div className="mb-4 bg-white dark:text-white dark:bg-gray-800 max-w-screen-xl border dark:border-gray-700">
       <CRow xs={{ cols: 1 }} lg={{ cols: 2 }} className="w-100">
         <CCol className="d-flex align-items-center">
           <div className="my-3 d-flex align-items-center justify-center ms-3">
@@ -265,15 +265,15 @@ function SubHeader(props) {
               <CDropdown>
                 <CDropdownToggle
                   id="cdropdown-toggle"
-                  className="dropdownmenu btn"
+                  className="dropdownmenu btn dark:text-white dark:bg-gray-700"
                 >
                   {activeLink}
                 </CDropdownToggle>
-                <CDropdownMenu>
+                <CDropdownMenu className="dark:bg-gray-700">
                   {subHeaderItems.map((item, index) => (
                     <CDropdownItem
                       key={index}
-                      className="btn"
+                      className="btn dark:text-white dark:bg-gray-800 hover:bg-gray-600"
                       onClick={() => handleItemClick(item)}
                     >
                       <CIcon icon={item.icon} className="mx-2" />
@@ -286,14 +286,22 @@ function SubHeader(props) {
             <div className="ms-2">
               {Array.isArray(selectedRow) && selectedRow.length > 0 ? (
                 <>
-                  <span className="">{selectedRow.length} selected:</span>
-                  <CButton className=" ml-3" onClick={() => setVisible(true)}>
+                  <span className="dark:text-gray-300">
+                    {selectedRow.length} selected:
+                  </span>
+                  <CButton
+                    className="ml-3 dark:bg-red-600 dark:text-white"
+                    onClick={() => setVisible(true)}
+                  >
                     Delete
                   </CButton>
                 </>
               ) : (
                 !isHideAddButton && (
-                  <CButton className="btn border" onClick={handleAddNew}>
+                  <CButton
+                    className="btn border dark:border-gray-600 dark:text-white"
+                    onClick={handleAddNew}
+                  >
                     Add New
                   </CButton>
                 )
@@ -303,17 +311,17 @@ function SubHeader(props) {
         </CCol>
         {handleFilter && (
           <CCol className="d-flex justify-content-end align-items-center mb-3 mb-md-0 me-3 me-md-0">
-            <div className="text-end  position-relative d-flex align-items-center ms-3">
+            <div className="text-end position-relative d-flex align-items-center ms-1">
               <CFormInput
                 placeholder="Search......"
                 type="text"
-                className=""
+                className=" dark:border-gray-600 dark:text-white"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
-              <div className="d-flex ms-3">
+              <div className="d-flex ms-2">
                 <CButton
-                  className="btn btn-success"
+                  className="btn btn-success dark:bg-green-600 dark:text-white"
                   onClick={() => {
                     setSearchCurrentPage(search);
                     handleFilter(search);
@@ -322,7 +330,7 @@ function SubHeader(props) {
                   Search
                 </CButton>
                 <CButton
-                  className="btn btn-danger ms-2"
+                  className="btn btn-danger ms-2 dark:bg-red-600 dark:text-white"
                   onClick={() => {
                     onReset();
                     setSearch("");

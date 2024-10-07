@@ -30,6 +30,17 @@ class BasicProvider {
     }
   }
 
+  async getPdf() {
+    try {
+      const config = this.getHeaders();
+      config.responseType = "blob";
+      const response = await axios.get(this.url, config);
+      return this.processResponse(response);
+    } catch (error) {
+      this.handleException(error);
+    }
+  }
+
   processResponse(response) {
     if (response.status >= 200 && response.status < 300) {
       if (response?.data?.data) {

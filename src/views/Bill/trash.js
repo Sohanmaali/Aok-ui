@@ -237,7 +237,7 @@ export default function BillTrash() {
         searchInput={search}
         rowPerPage={rowPerPage}
         defaultPage={defaultPage}
-        moduleName="customers"
+        moduleName="bill"
         deletionType="trash"
       />
 

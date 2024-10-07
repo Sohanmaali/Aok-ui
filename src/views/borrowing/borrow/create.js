@@ -251,14 +251,12 @@ export default function CreateBorrow(params) {
                       Work Date *
                     </CFormLabel>
                     <CCol md="12" className="w-full">
-                      {" "}
-                      {/* Full width for all screen sizes */}
                       <DatePicker
                         selected={initialvalues?.work_date || null}
                         placeholderText="Select a date"
                         name="work_date"
                         onChange={handleDateChange}
-                        className="form-control w-full" // Ensure the DatePicker also takes full width
+                        className="form-control w-full"
                       />
                     </CCol>
                   </CRow>
