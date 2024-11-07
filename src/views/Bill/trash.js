@@ -164,7 +164,7 @@ export default function BillTrash() {
           </div>
         </div>
       ),
-      width: "20%",
+      // width: "20%",
     },
 
     {
@@ -238,7 +238,7 @@ export default function BillTrash() {
         rowPerPage={rowPerPage}
         defaultPage={defaultPage}
         moduleName="bill"
-        deletionType="trash"
+        deletionType="delete"
       />
 
       <CContainer fluid>

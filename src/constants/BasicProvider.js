@@ -2,7 +2,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 class BasicProvider {
   constructor(url, dispatch) {
-    this.url = process.env.REACT_APP_NODE_URL + "/api/" + url;
+    this.url = "http://localhost:3002" + "/api/" + url;
+    // this.url = process.env.REACT_APP_NODE_URL + "/api/" + url;
+
     this.dispatch = dispatch;
   }
 
@@ -14,7 +16,7 @@ class BasicProvider {
       }
       const response = await axios.get(this.url, config);
 
-      console.log("response", response);
+      // console.log("response", response);
       return this.processResponse(response);
     } catch (error) {
       this.handleException(error);

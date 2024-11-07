@@ -12,6 +12,7 @@ import { DeleteModal } from "../../helpers/DeleteModal";
 import BasicProvider from "../../constants/BasicProvider";
 
 import DateTimeHelper from "../../helpers/DateTimeHepler";
+import HelperFunctions from "../../helpers/HelperFunction";
 
 var subHeaderItems = [
   {
@@ -83,21 +84,23 @@ export default function AllBill() {
       if (performSearch) {
         queryData["page"] = currentPage;
         queryData["count"] = count;
-        // response = await new BasicProvider(`
-        //   customers/onlycustomer?${HelperFunction.convertToQueryString(
-        //     queryData
-        //   )}`).getRequest();
-        // console.log(response);
+        response = await new BasicProvider(
+          `bill/search?${HelperFunctions.convertToQueryString(queryData)}`,
+          dispatch
+        ).getRequest();
+        console.log(response);
+        dispatch({ type: "set", data: { bill: response?.data } });
       } else {
         response = await new BasicProvider(
           `bill?page=${currentPage}&count=${count}`,
           dispatch
         ).getRequest();
+        dispatch({ type: "set", data: { bill: response?.data?.data } });
+
+        dispatch({ type: "set", totalCount: response.data.total });
       }
       console.log("response", response);
 
-      dispatch({ type: "set", data: { bill: response?.data?.data } });
-      dispatch({ type: "set", totalCount: response.data.total });
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -223,7 +226,7 @@ export default function AllBill() {
             <CIcon
               className="pointer_cursor"
               icon={cilPencil}
-              onClick={() => navigate(`/bill/${row._id}/edit`)}
+              onClick={() => navigate(`/bill/bill-details/${row._id}`)}
             />
           </div>
 

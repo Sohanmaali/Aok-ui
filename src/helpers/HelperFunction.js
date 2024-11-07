@@ -42,6 +42,13 @@ class HelperFunctions {
       return { data: [], total: 0 }; // Return an empty result if there's an error
     }
   }
+  static convertToQueryString(params) {
+    return Object.keys(params)
+      .map(
+        (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+      )
+      .join("&");
+  }
 }
 
 export default HelperFunctions;

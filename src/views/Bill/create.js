@@ -60,7 +60,7 @@ const ValidationRules = {
 export default function CreateBill() {
   const [startDate, setStartDate] = useState(new Date());
 
-  const { id } = useParams();
+  const { id, customer } = useParams();
   const isEditMode = Boolean(id);
 
   const dispatch = useDispatch();
@@ -73,6 +73,8 @@ export default function CreateBill() {
     image: "",
     total: 0,
   });
+  console.log("initialvalues", initialvalues);
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [pdfloading, setPdfLoading] = useState(false);
@@ -160,13 +162,36 @@ export default function CreateBill() {
   };
 
   useEffect(() => {
+    const fetchCustomerData = async () => {
+      const response = await new BasicProvider(
+        `customer/show/${customer}`,
+        dispatch
+      ).getRequest();
+      if (response.status == "success") {
+        console.log("response", response?.data);
+
+        setInitialvalues((prev) => ({
+          ...prev,
+          first_name: response?.data?.first_name,
+          last_name: response?.data?.last_name,
+          mobile: response?.data?.mobile,
+          address: response?.data?.address,
+        }));
+      }
+    };
+    if (customer) {
+      fetchCustomerData();
+    }
+
     if (id) {
       const fetchData = async () => {
         const response = await new BasicProvider(
           `bill/show/${id}`,
           dispatch
         ).getRequest();
-        if (response.status == "success") setInitialvalues(response?.data);
+        if (response.status == "success") {
+          setInitialvalues(response?.data);
+        }
       };
       fetchData();
     } else {
@@ -233,8 +258,9 @@ export default function CreateBill() {
                         name={id}
                         placeholder={placeholder}
                         onChange={handleChange}
-                        disabled={isEditMode}
+                        disabled={isEditMode || customer}
                         value={initialvalues[id]}
+                        // disabled={customer ? true : false}
                       />
                     </div>
                   ))}
@@ -288,51 +314,53 @@ export default function CreateBill() {
                   <h5>Add Work's</h5>
                 </CCardHeader>
                 <CCardBody>
-                  {initialvalues.works.map((work, index) => (
-                    <div key={index} className="mb-3">
-                      <CFormLabel htmlFor={`work_name_${index}`}>
-                        Work Name
-                      </CFormLabel>
-                      <CFormInput
-                        type="text"
-                        disabled={isEditMode}
-                        id={`work_name_${index}`}
-                        name="work_name"
-                        placeholder="Enter work name"
-                        value={work.work_name}
-                        onChange={(e) => handleChange(e, index)}
-                      />
-                      <div className="mt-3">
-                        <CFormLabel htmlFor={`price_${index}`}>
-                          Price
+                  {initialvalues.works &&
+                    initialvalues.works.length > 0 &&
+                    initialvalues.works.map((work, index) => (
+                      <div key={index} className="mb-3">
+                        <CFormLabel htmlFor={`work_name_${index}`}>
+                          Work Name
                         </CFormLabel>
                         <CFormInput
                           type="text"
                           disabled={isEditMode}
-                          id={`price_${index}`}
-                          name="price"
-                          placeholder="Enter price"
-                          value={work.price}
-                          onChange={(e) => {
-                            // Allow only numeric input
-                            const value = e.target.value;
-                            if (/^\d*$/.test(value)) {
-                              handleChange(e, index);
-                            }
-                          }}
+                          id={`work_name_${index}`}
+                          name="work_name"
+                          placeholder="Enter work name"
+                          value={work.work_name}
+                          onChange={(e) => handleChange(e, index)}
                         />
+                        <div className="mt-3">
+                          <CFormLabel htmlFor={`price_${index}`}>
+                            Price
+                          </CFormLabel>
+                          <CFormInput
+                            type="text"
+                            disabled={isEditMode}
+                            id={`price_${index}`}
+                            name="price"
+                            placeholder="Enter price"
+                            value={work.price}
+                            onChange={(e) => {
+                              // Allow only numeric input
+                              const value = e.target.value;
+                              if (/^\d*$/.test(value)) {
+                                handleChange(e, index);
+                              }
+                            }}
+                          />
+                        </div>
+                        {!isEditMode && (
+                          <CButton
+                            color="danger"
+                            onClick={() => removeWork(index)}
+                            className="mt-2"
+                          >
+                            Remove Work
+                          </CButton>
+                        )}
                       </div>
-                      {!isEditMode && (
-                        <CButton
-                          color="danger"
-                          onClick={() => removeWork(index)}
-                          className="mt-2"
-                        >
-                          Remove Work
-                        </CButton>
-                      )}
-                    </div>
-                  ))}
+                    ))}
                   {!isEditMode && (
                     <div className="d-flex justify-content-between align-items-center">
                       <CButton

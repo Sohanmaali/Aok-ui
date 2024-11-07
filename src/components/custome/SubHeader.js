@@ -313,7 +313,7 @@ function SubHeader(props) {
           <CCol className="d-flex justify-content-end align-items-center mb-3 mb-md-0 me-3 me-md-0">
             <div className="text-end position-relative d-flex align-items-center ms-1">
               <CFormInput
-                placeholder="Search......"
+                placeholder="Search Name Mobile Email"
                 type="text"
                 className=" dark:border-gray-600 dark:text-white"
                 value={search}
